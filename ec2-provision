@@ -1,0 +1,31 @@
+- name: Configure instances
+  hosts: launched
+  become: true
+  gather_facts: true
+  vars:
+    ansible_user: ec2-user
+  tasks:
+    - name: Install openjdk
+     # yum: name=java-openjdk11 state=present update_cache=yes
+      become: true
+      shell: sudo amazon-linux-extras install -y java-openjdk11
+
+    - name: Install hello-springrest
+      become: true
+      shell: sudo mkdir /var/myapp
+
+    - name: Install hello-springrest
+      copy:
+        src: hellospringrest/build/libs/rest-service-0.0.1-SNAPSHOT.jar
+        dest: /var/myapp/
+
+    - name: SymLink
+      become: true
+      shell: sudo ln -s /var/myapp/rest-service-0.0.1-SNAPSHOT.jar /etc/init.d/myapp
+
+    - name: Start jar as a service
+      service:
+        name: myapp
+        enabled: true
+        state: started
+        become: true
